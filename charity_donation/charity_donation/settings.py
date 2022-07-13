@@ -49,7 +49,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'PorfolioProject.urls'
+ROOT_URLCONF = 'charity_donation.urls'
 
 TEMPLATES = [
     {
@@ -68,7 +68,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'PorfolioProject.wsgi.application'
+WSGI_APPLICATION = 'charity_donation.wsgi.application'
 
 
 # Database
