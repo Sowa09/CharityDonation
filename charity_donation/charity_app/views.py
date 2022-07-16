@@ -1,11 +1,9 @@
+from django.db.models.aggregates import Sum
+from django.db.models.expressions import F
 from django.shortcuts import render
 from django.views import View
 
-
-class LandingPageView(View):
-
-    def get(self, request):
-        return render(request, 'index.html')
+from .models import Donation, Institution
 
 
 class AddDonationView(View):
@@ -24,3 +22,14 @@ class RegisterView(View):
 
     def get(self, request):
         return render(request, 'register.html')
+
+
+class IndexView(View):
+
+    def get(self, request):
+        donation_counter = Donation.objects.aggregate(TOTAL=Sum('quantity'))['TOTAL']
+        institution_counter = Donation.objects.values('institution').distinct().count()
+
+        ctx = {'donation_counter': donation_counter,
+               'institution_counter': institution_counter}
+        return render(request, 'index.html', ctx)
