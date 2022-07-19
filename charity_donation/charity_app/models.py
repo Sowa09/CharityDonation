@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from django.forms import ModelForm
+
 
 FUND_TYPE = [
     ('fundacja', 'fundacja'),
