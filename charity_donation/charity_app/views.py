@@ -1,5 +1,4 @@
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.db.models.aggregates import Sum
 from django.http import HttpResponse
@@ -27,15 +26,15 @@ class LoginView(View):
         return render(request, 'login.html')
 
     def post(self, request):
-        email = request.POST['email']
+        username = request.POST['email']
         password = request.POST['password']
 
-        user = authenticate(request, username=email, password=password)
+        user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return render(request, 'form-confirmation.html')
+            return redirect('index')
         else:
-            return redirect('register')
+            return HttpResponse('Błędny login lub hasło')
 
 
 class RegisterView(View):
@@ -47,17 +46,14 @@ class RegisterView(View):
         if request.POST.get('first_name') and request.POST.get('last_name') and request.POST.get('email') and \
                 request.POST.get('password') and request.POST.get('password2'):
             user = User()
-            user.username = request.POST.get('email')
-            user.first_name = request.POST.get('first_name')
-            user.last_name = request.POST.get('last_name')
-            user.email = request.POST.get('email')
-            user.password = request.POST.get('password')
-            user.password2 = request.POST.get('password2')
-            if user.password == user.password2:
-                user.save()
-                return render(request, 'login.html')
-            else:
-                return HttpResponse('Proszę podać takie same hasła')
+            user.username = request.POST['email']
+            user.first_name = request.POST['first_name']
+            user.last_name = request.POST['last_name']
+            user.email = request.POST['email']
+            user.set_password(request.POST['password'])
+            user.save()
+            return render(request, 'login.html')
+
         else:
             return render(request, 'register.html')
 
