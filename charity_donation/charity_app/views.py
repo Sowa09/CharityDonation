@@ -1,5 +1,9 @@
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 from django.db.models.aggregates import Sum
-from django.shortcuts import render
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
 from django.views import View
 
 from .models import Donation, Institution
@@ -22,6 +26,17 @@ class LoginView(View):
     def get(self, request):
         return render(request, 'login.html')
 
+    def post(self, request):
+        email = request.POST['email']
+        password = request.POST['password']
+
+        user = authenticate(request, username=email, password=password)
+        if user is not None:
+            login(request, user)
+            return render(request, 'form-confirmation.html')
+        else:
+            return redirect('register')
+
 
 class RegisterView(View):
 
@@ -29,8 +44,22 @@ class RegisterView(View):
         return render(request, 'register.html')
 
     def post(self, request):
-        pass
-
+        if request.POST.get('first_name') and request.POST.get('last_name') and request.POST.get('email') and \
+                request.POST.get('password') and request.POST.get('password2'):
+            user = User()
+            user.username = request.POST.get('email')
+            user.first_name = request.POST.get('first_name')
+            user.last_name = request.POST.get('last_name')
+            user.email = request.POST.get('email')
+            user.password = request.POST.get('password')
+            user.password2 = request.POST.get('password2')
+            if user.password == user.password2:
+                user.save()
+                return render(request, 'login.html')
+            else:
+                return HttpResponse('Proszę podać takie same hasła')
+        else:
+            return render(request, 'register.html')
 
 
 class IndexView(View):
