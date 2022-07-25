@@ -1,4 +1,5 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db.models.aggregates import Sum
 from django.http import HttpResponse
@@ -8,16 +9,27 @@ from django.views import View
 from .models import Donation, Institution
 
 
+class LogoutView(View):
+
+    def get(self, request):
+        logout(request)
+        return redirect('index')
+
+
 class TestView(View):
 
     def get(self, request):
         return render(request, 'base.html')
 
 
-class AddDonationView(View):
+class AddDonationView(LoginRequiredMixin, View):
+    login_url = '/login/'
+    redirect_field_name = 'index'
 
     def get(self, request):
-        return render(request, 'form.html')
+        user = User.objects.all()
+
+        return render(request, 'form.html', {'user': user})
 
 
 class LoginView(View):
@@ -70,3 +82,11 @@ class IndexView(View):
                'institution': institution,
                }
         return render(request, 'index.html', ctx)
+
+
+class ProfileView(View):
+
+    def get(self, request):
+        user = User.objects.all()
+
+        return render(request, 'profile.html', {'user': user})
